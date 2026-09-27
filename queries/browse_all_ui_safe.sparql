@@ -1,0 +1,25 @@
+# Browse every triple in the `kg` dataset, safe for Fuseki's built-in
+# query UI. A plain `SELECT ?s ?p ?o WHERE { ?s ?p ?o }` will crash that
+# UI's results table ("e[t].value.replace is not a function") on any row
+# whose object is an RDF 1.2 triple term (e.g. the `rdf:reifies` triples
+# this project's mappings produce) -- the UI assumes every binding value
+# is a string, but a triple-term binding is a structured object. Filtering
+# those rows out with isTRIPLE() avoids the crash; see
+# queries/diagnoses_with_provenance.sparql for a query that instead joins
+# through rdf:reifies to get the reification metadata back as plain terms.
+#
+# Run against the running Fuseki container with:
+#   curl -u admin:${FUSEKI_ADMIN_PASSWORD:-changeme} \
+#     -H "Accept: application/sparql-results+json" \
+#     --data-urlencode query@queries/browse_all_ui_safe.sparql \
+#     http://localhost:${FUSEKI_PORT:-3031}/${FUSEKI_DATASET:-kg}/query
+#
+# Or paste it into the admin UI query tab at
+#   http://localhost:3031/#/dataset/kg/query
+
+SELECT ?s ?p ?o
+WHERE {
+  ?s ?p ?o .
+  FILTER(!isTRIPLE(?o))
+}
+ORDER BY ?s ?p

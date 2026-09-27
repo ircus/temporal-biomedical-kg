@@ -1,0 +1,22 @@
+# Returns each patient/diagnosis assertion in the `kg` dataset together
+# with its RDF 1.2 reification metadata (onset date + recording system).
+#
+# Run against the running Fuseki container with:
+#   curl -u admin:${FUSEKI_ADMIN_PASSWORD:-changeme} \
+#     -H "Accept: application/sparql-results+json" \
+#     --data-urlencode query@queries/diagnoses_with_provenance.sparql \
+#     http://localhost:${FUSEKI_PORT:-3031}/${FUSEKI_DATASET:-kg}/query
+#
+# Or paste it into the admin UI query tab at
+#   http://localhost:3031/#/dataset/kg/query
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX :    <http://example.org/kg/vocab/>
+
+SELECT ?patient ?diagnosis ?onset ?src
+WHERE {
+  ?reifier rdf:reifies <<( ?patient :hasDiagnosis ?diagnosis )>> ;
+    :onsetDate ?onset ;
+    :recordedBy ?src .
+}
+ORDER BY ?patient

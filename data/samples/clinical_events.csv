@@ -1,0 +1,6 @@
+patient_id,condition_code,condition_label,onset_date,recorded_by
+P001,E11,Type 2 diabetes mellitus,2019-03-14,EHR-SystemA
+P001,I10,Essential hypertension,2021-07-02,EHR-SystemA
+P002,J45,Asthma,2018-11-30,EHR-SystemB
+P002,E11,Type 2 diabetes mellitus,2022-01-09,EHR-SystemB
+P003,I10,Essential hypertension,2020-05-21,EHR-SystemA

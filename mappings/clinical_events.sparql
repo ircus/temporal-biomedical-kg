@@ -1,0 +1,41 @@
+PREFIX xyz:  <http://sparql.xyz/facade-x/data/>
+PREFIX fx:   <http://sparql.xyz/facade-x/ns/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX :     <http://example.org/kg/vocab/>
+PREFIX pat:  <http://example.org/kg/patient/>
+PREFIX dx:   <http://example.org/kg/diagnosis/>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+# Maps data/samples/clinical_events.csv into RDF 1.2. The diagnosis fact
+# is asserted as a plain triple; an RDF 1.2 reifier (rdf:reifies a triple
+# term) then carries the temporal/provenance metadata about that specific
+# assertion, which is the RDF 1.2-idiomatic replacement for RDF reification
+# / singleton properties. Note: triple terms (<<( s p o )>>) are only
+# valid as the OBJECT of a triple (typically of rdf:reifies) -- they
+# cannot be used directly as a subject.
+CONSTRUCT {
+  ?patient a :Patient .
+  ?diagnosis a :Diagnosis ;
+    :code ?conditionCode ;
+    :label ?conditionLabel .
+  ?patient :hasDiagnosis ?diagnosis .
+
+  ?reifier rdf:reifies <<( ?patient :hasDiagnosis ?diagnosis )>> ;
+    :onsetDate ?onsetDate ;
+    :recordedBy ?recordedBy .
+}
+WHERE {
+  SERVICE <x-sparql-anything:location=data/samples/clinical_events.csv,csv.headers=true> {
+    ?row xyz:patient_id       ?patientId ;
+         xyz:condition_code   ?conditionCodeStr ;
+         xyz:condition_label  ?conditionLabel ;
+         xyz:onset_date       ?onsetDateStr ;
+         xyz:recorded_by      ?recordedBy .
+  }
+
+  BIND(IRI(CONCAT(STR(pat:), ?patientId))            AS ?patient)
+  BIND(IRI(CONCAT(STR(dx:), ?conditionCodeStr))       AS ?diagnosis)
+  BIND(STRDT(?conditionCodeStr, xsd:string)           AS ?conditionCode)
+  BIND(STRDT(?onsetDateStr, xsd:date)                 AS ?onsetDate)
+  BIND(BNODE(CONCAT(?patientId, "-", ?conditionCodeStr)) AS ?reifier)
+}

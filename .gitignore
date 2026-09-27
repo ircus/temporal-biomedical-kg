@@ -1,0 +1,11 @@
+.env
+
+# generated RDF, keep the pipeline output out of git
+output/*
+!output/.gitkeep
+
+# large/raw downloads shouldn't be committed
+data/raw/*
+!data/raw/.gitkeep
+
+*.log

@@ -1,0 +1,19 @@
+services:
+  fuseki:
+    # Jena/Fuseki 6.x — supports RDF 1.2 (triple terms, RDF-star syntax) end to end.
+    image: secoresearch/fuseki:latest
+    container_name: temporal-biomedical-kg-fuseki
+    restart: unless-stopped
+    ports:
+      - "${FUSEKI_PORT:-3031}:3030"
+    environment:
+      ADMIN_PASSWORD: ${FUSEKI_ADMIN_PASSWORD:-changeme}
+      ENABLE_DATA_WRITE: "true"
+      ENABLE_UPDATE: "true"
+    volumes:
+      - fuseki-data:/fuseki-base/databases
+      - fuseki-config:/fuseki-base/configuration
+
+volumes:
+  fuseki-data:
+  fuseki-config:
